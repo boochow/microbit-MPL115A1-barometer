@@ -47,7 +47,7 @@ Two items need further investigation:
 
 - Forum threads about the MPL115A1  somewhere that claimed the temperature calculation algorithm in the datasheet is wrong, giving consistently low readings.  See https://github.com/hackscribble/microbit-MPL115A1-barometer/issues/1
 
-- This version of the code retains the formula for calculating sea level pressure (P0) that was used in the original program.  It is different from that shown in source [3] below, which factors in temperature as well as altitude.
+- This version of the code retains the formula for calculating sea level pressure (P0) that was used in the original program.  It is different from that shown in source [3] below, which factors in temperature as well as altitude.  See https://github.com/hackscribble/microbit-MPL115A1-barometer/issues/2
 
 ## History
 
