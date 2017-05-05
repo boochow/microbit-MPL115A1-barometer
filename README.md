@@ -1,6 +1,6 @@
 # MPL115A1 barometer for the BBC micro:bit
 
-MicroPython program for the BBC micro:bit that displays pressure and temperature readings from a MPL115A1 SPI-connected sensor.
+MicroPython program for the BBC micro:bit that displays pressure and temperature readings from the NXP MPL115A1 SPI-connected sensor.
 
 ## Credits
 
@@ -19,28 +19,35 @@ CS | 16
 VDD | 3V
 GND | GND
 
-MPL115A1 pin | connections
--|-
-CAP | 1uF capacitor to GND
-SHDN | VDD
-
 Edit the program to set `MY_ALTITUDE` to your altitude (metres above mean sea level).
 
-Flash the program onto the micro:bit and check the values displayed.
+Flash the program onto the micro:bit.
+
+Check the values displayed:
+
+- Temperature `T` should be sensible.
+- Pressure `P` should be 1000hPa plus or minus 100.
+- Pressure `P0` should be lower than `P`.
 
 ## Notes
 
 If you are using a ready-made MPL115A1 breakout board, the following connections may already have been taken care of.  If not, connect the pins as shown.
+
+MPL115A1 pin | connections
+-|-
+CAP | 1uF capacitor to GND
+SHDN | VDD
 
 The MPL115A1 datasheet says ...
 
 > The sensor die is sensitive to light exposure. Direct light exposure through the port hole can lead to varied accuracy of pressure
 measurement. Avoid such exposure to the port during normal operation.
 
-I've seen a forum thread somewhere (*link TBA*) that claimed the temperature calculation algorithm in the datasheet is wrong.
+Two items need further investigation:
 
-I have retained the formula for calculating sea level pressure (P0) that was used in the original program.  It is different from that shown in source [3] below, which factors in temperature as well as altitude. This is something to look at for the next release.
+- I've seen a forum thread somewhere (*link TBA*) that claimed the temperature calculation algorithm in the datasheet is wrong, giving consistently low readings.
 
+- This version of the code retains the formula for calculating sea level pressure (P0) that was used in the original program.  It is different from that shown in source [3] below, which factors in temperature as well as altitude. 
 
 ## History
 
