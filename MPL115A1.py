@@ -1,8 +1,7 @@
-from microbit import *
+from time import sleep_ms
 
 MY_ALTITUDE = 9.0  # metres above mean sea level (AMSL)
 
-SCROLL_SPEED = 80
 READ_INTERVAL = 5000  # milliseconds
 
 
@@ -31,11 +30,10 @@ class MPL115A1:
     CMD_START = bytearray(b'\x24\x00')
     CMD_DATA = bytearray(b'\x80\x00\x82\x00\x84\x00\x86\x00\x00')
 
-    def __init__(self, sclk=pin13, miso=pin14, mosi=pin15, cs=pin16,
-                 baudrate=1000000, mode=0, altitude=0.0):
+    def __init__(self, spi, cs, altitude=0.0):
         self.cs = cs
         self._spi_enable(False)
-        spi.init(baudrate=baudrate, mode=mode, sclk=sclk, miso=miso, mosi=mosi)
+        self.spi = spi
         self._get_coefficients()
         self.P = 0  # measured pressure at observer's altitude
         self.P0 = 0  # calculated pressure at mean sea level
@@ -43,7 +41,7 @@ class MPL115A1:
         self.altitude = altitude
 
     def _spi_enable(self, b=True):
-        self.cs.write_digital(0) if b else self.cs.write_digital(1)
+        self.cs.value(0) if b else self.cs.value(1)
 
     def _spi_disable(self):
         self._spi_enable(False)
@@ -57,7 +55,7 @@ class MPL115A1:
     def _get_coefficients(self):
         data = bytearray(len(self.CMD_COEFS))
         self._spi_enable(True)
-        spi.write_readinto(self.CMD_COEFS, data)
+        self.spi.write_readinto(self.CMD_COEFS, data)
         self._spi_enable(False)
         self.a0 = self._convert_data(data[3], data[1])
         self.b1 = self._convert_data(data[7], data[5])
@@ -69,13 +67,13 @@ class MPL115A1:
         self.c12 = float(self.c12) / (1 << 24)
 
     def take_readings(self):
-        self._spi_enable(True)
-        spi.write(self.CMD_START)
-        self._spi_enable(False)
-        sleep(3)
         data = bytearray(len(self.CMD_DATA))
         self._spi_enable(True)
-        spi.write_readinto(self.CMD_DATA, data)
+        self.spi.write(self.CMD_START)
+        self._spi_enable(False)
+        sleep_ms(3)
+        self._spi_enable(True)
+        self.spi.write_readinto(self.CMD_DATA, data)
         self._spi_enable(False)
         padc = ((data[1] << 8) | data[3]) >> 6
         tadc = ((data[5] << 8) | data[7]) >> 6
@@ -84,12 +82,16 @@ class MPL115A1:
         self.P0 = self.P / pow(1.0 - (self.altitude / 44330.0), 5.255)
         self.T = 25.0 - (tadc - 512.0) / 5.35
 
+def main(barometer):
+    while True:
+        barometer.take_readings()
+        print('T: {t:.1f}C  P: {p:.0f}kPa  P0: {p0:.0f}kPa'.
+              format(t=barometer.T, p=barometer.P, p0=barometer.P0))
+        sleep_ms(READ_INTERVAL)
 
-barometer = MPL115A1(altitude=MY_ALTITUDE)
-
-while True:
-    barometer.take_readings()
-    display.scroll('T: {t:.1f}C  P: {p:.0f}kPa  P0: {p0:.0f}kPa'.
-                   format(t=barometer.T, p=barometer.P, p0=barometer.P0),
-                   SCROLL_SPEED)
-    sleep(READ_INTERVAL)
+if __name__ == '__main__':
+    from machine import Pin, SPI
+    spi = SPI(0)
+    spi.init(baudrate=1000000)
+    barometer = MPL115A1(spi, Pin(22, Pin.OUT), altitude=MY_ALTITUDE)
+    main(barometer)

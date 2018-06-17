@@ -1,3 +1,9 @@
+# MPL115A1 for MicroPython
+
+This is a fork of [hackscribble/microbit-MPL115A1-barometer: MicroPython program for the BBC micro:bit that displays pressure and temperature readings from a MPL115A1 SPI-connected sensor.](https://github.com/hackscribble/microbit-MPL115A1-barometer).
+
+This works with [boochow/micropython-raspberrypi](https://github.com/boochow/micropython-raspberrypi).
+
 # MPL115A1 barometer for the BBC micro:bit
 
 MicroPython program for the BBC micro:bit that displays pressure and temperature readings from the NXP MPL115A1 SPI-connected sensor.
